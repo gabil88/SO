@@ -35,8 +35,13 @@ void handle_parent_types(int type, Cache* cache, GArray* deleted_keys, int* max_
             int result = -1;
             int status = cache_add(cache, doc, 0);
             printf("Cache add status: %d\n", status);
-            if (result == 0) {
-                result = add_document(doc);
+            if (status == 0) {
+                int result = add_document(doc);
+                if (result == -1) {
+                    send_message(pipe_name, "Error adding document to disk.");
+                    free(doc);
+                    return;
+                }
                 char message[256];
                 snprintf(message, sizeof(message), "Document %d indexed\n", doc->key);
                 send_message(pipe_name, message);
@@ -46,9 +51,15 @@ void handle_parent_types(int type, Cache* cache, GArray* deleted_keys, int* max_
                 send_message(pipe_name, "Document already exists.");
             } else if (status == 3) {
                 send_message(pipe_name, "Document already exists.");
-                cache_add(cache,doc, 1);
             } else if (status == 4) {
+                result = add_document(doc);
+                if (result == -1) {
+                    send_message(pipe_name, "Error adding document to disk.");
+                    free(doc);
+                    return;
+                }
                 send_message(pipe_name, "Added new new path to the document.");
+
             } else {
                 send_message(pipe_name, "Unexpected Error adding document.");
             }
@@ -62,8 +73,7 @@ void handle_parent_types(int type, Cache* cache, GArray* deleted_keys, int* max_
                 snprintf(message, sizeof(message), "Index entry %d deleted", doc->key);
                 send_message(pipe_name, message);
                 g_array_append_val(deleted_keys, doc->key);
-            } else if (status == 1) {
-                send_message(pipe_name, "Document removed from disk and cache.");
+                printf("]\n");
             } else {
                 send_message(pipe_name, "Document not found in cache or disk.");
             }

@@ -172,7 +172,7 @@ int cache_remove(Cache* cache, int key){
             cache->count--;
             int res = remove_document(key);
             if (res == 0) {
-                return 1; // removed from cache and disk
+                return 0; // removed from cache and disk
             } else {
                 return -1; // failed to remove from disk
             }
