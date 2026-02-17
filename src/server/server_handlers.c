@@ -26,9 +26,11 @@ void handle_parent_types(int type, Cache* cache, GArray* deleted_keys, int* max_
             send_message(pipe_name, "Server shutting down.");
             exit(0);
         case 1: // Add document
+        int using_deleted = 0;
             if (deleted_keys->len > 0) {
                 doc->key = g_array_index(deleted_keys, int, deleted_keys->len - 1);
                 g_array_remove_index(deleted_keys, deleted_keys->len - 1);
+                using_deleted = 1;
             } else {
                 doc->key = *max_key + 1;
             }
@@ -46,7 +48,7 @@ void handle_parent_types(int type, Cache* cache, GArray* deleted_keys, int* max_
                 snprintf(message, sizeof(message), "Document %d indexed\n", doc->key);
                 send_message(pipe_name, message);
                 printf("Document %d indexed\n", doc->key);
-                (*max_key)++;
+                if(!using_deleted) {(*max_key)++;}
             } else if (status == 2) {
                 send_message(pipe_name, "Document already exists.");
             } else if (status == 3) {

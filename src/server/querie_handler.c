@@ -18,9 +18,6 @@ int get_number_of_lines_with_keyword(Document* doc, char* keyword, int stop_on_f
     }
 
     int total_count = 0;
-    // Assuming doc->path is a char array like char path[SIZE];
-    // If doc->path is char*, sizeof(doc->path) would be sizeof(char*), which is incorrect.
-    // Given strncpy, a fixed-size array is implied by the original code.
     char paths_copy[sizeof(doc->path)]; 
     strncpy(paths_copy, doc->path, sizeof(paths_copy));
     paths_copy[sizeof(paths_copy)-1] = '\0'; // Ensure null-termination
